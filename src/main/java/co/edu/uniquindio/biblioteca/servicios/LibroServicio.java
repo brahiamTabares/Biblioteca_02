@@ -74,4 +74,15 @@ public class LibroServicio {
         return nuevo;
     }
 
+    public void delete(String isbn){
+        libroRepo.findById(isbn).orElseThrow(() -> new LibroNoEncontradoException("El libro no existe"));
+        libroRepo.deleteById(isbn);
+    }
+
+    public Libro update(String isbn, Libro libroNuevo){
+
+        libroRepo.findById(isbn).orElseThrow(() -> new LibroNoEncontradoException("El libro no existe "));
+        return  libroRepo.save(libroNuevo);
+    }
+
 }
