@@ -40,9 +40,6 @@ public class LibroServicio {
         return libroRepo.findAll();
     }
 
-    public Libro update(LibroDTO libro){
-        return libroRepo.save( convertir(libro) );
-    }
 
     private Libro convertir(LibroDTO libro){
 
@@ -79,10 +76,15 @@ public class LibroServicio {
         libroRepo.deleteById(isbn);
     }
 
-    public Libro update(String isbn, Libro libroNuevo){
+    public Libro update(LibroDTO libro){
 
-        libroRepo.findById(isbn).orElseThrow(() -> new LibroNoEncontradoException("El libro no existe "));
-        return  libroRepo.save(libroNuevo);
+        Optional<Libro>  actualizar = libroRepo.findById(libro.isbn());
+
+        if(!actualizar.isPresent() ){
+            throw new RuntimeException("El libro con el isbn "+libro.isbn()+" no existe ");
+        }
+
+        return libroRepo.save( convertir(libro) );
     }
 
 }

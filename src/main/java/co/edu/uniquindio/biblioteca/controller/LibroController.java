@@ -44,10 +44,9 @@ public class LibroController {
 
         return  "se elimino";
     }
-    @PutMapping("/{isbnLibro}")
-    public Libro update(@PathVariable String isbnLibro,@RequestBody Libro libro){
-
-        return libroServicio.update(isbnLibro,libro);
+    @PostMapping
+    public ResponseEntity<Respuesta<Libro>> Update(@RequestBody LibroDTO libroDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(new Respuesta<>("Libro actualizado correctamente", libroServicio.save(libroDTO)));
     }
 
 }
