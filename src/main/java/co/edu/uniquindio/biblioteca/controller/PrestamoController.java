@@ -33,6 +33,19 @@ public class PrestamoController {
     public ResponseEntity<Respuesta<Prestamo>> findAll(@PathVariable long clienteID){
         return ResponseEntity.status(HttpStatus.OK).body( new Respuesta<>("", prestamoServicio.findById(clienteID)) );
     }
+
+    @DeleteMapping ("/{clienteID}")
+    public String delete(@PathVariable long clienteID){
+
+       prestamoServicio.delete(clienteID);
+
+        return  "se elimino";
+    }
+
+    @PutMapping
+    public ResponseEntity<Respuesta<Prestamo>> Update(@RequestBody PrestamoDTO prestamoDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(new Respuesta<>("Prestamo actualizado correctamente", prestamoServicio.save(prestamoDTO)));
+    }
 }
 
 

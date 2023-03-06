@@ -10,6 +10,7 @@ import co.edu.uniquindio.biblioteca.entity.Prestamo;
 import co.edu.uniquindio.biblioteca.repo.ClienteRepo;
 import co.edu.uniquindio.biblioteca.repo.PrestamoRepo;
 import co.edu.uniquindio.biblioteca.servicios.excepciones.ClienteNoEncontradoException;
+import co.edu.uniquindio.biblioteca.servicios.excepciones.LibroNoEncontradoException;
 import co.edu.uniquindio.biblioteca.servicios.excepciones.PrestamoNoEncontradoException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -64,7 +65,7 @@ public class PrestamoServicio {
         return new PrestamoPost(prestamo.clienteID(),prestamo.isbnLibros(),prestamo.fechaPrestamo(),prestamo.fechaDevolucion());
     }
 
-    //TODO usar DTO y la exepción propia de préstamo
+
     public Prestamo findById( long clienteID) {
         return prestamoRepo.findById(clienteID).orElseThrow(() -> new PrestamoNoEncontradoException("No existe"));
     }
@@ -72,10 +73,11 @@ public class PrestamoServicio {
         return prestamoRepo.findAll();
     }
 
-    private Prestamo obtenerPrestamo(Long codigoPrestamo) {
-        return prestamoRepo.findById(codigoPrestamo).orElseThrow(() -> new PrestamoNoEncontradoException("El Prestamo no existe"));
-    }
 
+    public void delete(long clienteID){
+        prestamoRepo.findById(clienteID).orElseThrow(() -> new PrestamoNoEncontradoException("No existe un prestamo registrado a este cliente"));
+        prestamoRepo.deleteById(clienteID);
+    }
 
     public Prestamo update(PrestamoDTO prestamo){
 
