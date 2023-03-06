@@ -23,10 +23,12 @@ public class LibroController {
     public ResponseEntity<Respuesta<Libro>> save(@RequestBody LibroDTO libroDTO){
         return ResponseEntity.status(HttpStatus.CREATED).body( new Respuesta<>("Libro creado correctamente", libroServicio.save(libroDTO)) );
     }
+    /**
     @GetMapping("/{isbnLibro}")
     public ResponseEntity<Respuesta<Libro>> findById(String isbn){
         return ResponseEntity.status(HttpStatus.OK).body( new Respuesta<>("", libroServicio.findById(isbn)) );
     }
+     */
     @GetMapping
     public ResponseEntity<Respuesta<List<Libro>>> findAll(){
         return ResponseEntity.status(HttpStatus.OK).body( new Respuesta<>("", libroServicio.findAll()) );
@@ -44,7 +46,7 @@ public class LibroController {
 
         return  "se elimino";
     }
-    @PostMapping
+    @PutMapping
     public ResponseEntity<Respuesta<Libro>> Update(@RequestBody LibroDTO libroDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(new Respuesta<>("Libro actualizado correctamente", libroServicio.save(libroDTO)));
     }
