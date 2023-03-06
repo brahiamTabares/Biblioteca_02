@@ -1,18 +1,23 @@
 package co.edu.uniquindio.biblioteca.servicios;
 
+import co.edu.uniquindio.biblioteca.dto.ClientePost;
+import co.edu.uniquindio.biblioteca.dto.LibroDTO;
 import co.edu.uniquindio.biblioteca.dto.PrestamoDTO;
+import co.edu.uniquindio.biblioteca.dto.PrestamoPost;
 import co.edu.uniquindio.biblioteca.entity.Cliente;
 import co.edu.uniquindio.biblioteca.entity.Libro;
 import co.edu.uniquindio.biblioteca.entity.Prestamo;
 import co.edu.uniquindio.biblioteca.repo.ClienteRepo;
 import co.edu.uniquindio.biblioteca.repo.PrestamoRepo;
 import co.edu.uniquindio.biblioteca.servicios.excepciones.ClienteNoEncontradoException;
+import co.edu.uniquindio.biblioteca.servicios.excepciones.PrestamoNoEncontradoException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -21,13 +26,13 @@ public class PrestamoServicio {
     private final PrestamoRepo prestamoRepo;
     private final ClienteRepo clienteRepo;
 
-    public Prestamo save(PrestamoDTO prestamoDTO){
+    public Prestamo save(PrestamoDTO prestamoDTO) {
 
         long codigoCliente = prestamoDTO.clienteID();
         Optional<Cliente> consulta = clienteRepo.findById(codigoCliente);
 
-        if(consulta.isEmpty()){
-            throw new ClienteNoEncontradoException("No existe");
+        if (consulta.isEmpty()) {
+            throw new ClienteNoEncontradoException("El cliente No Tiene prestamos existentes");
         }
 
         Prestamo prestamo = new Prestamo();
@@ -54,14 +59,42 @@ public class PrestamoServicio {
 
 
     //TODO Completar
-    public List<PrestamoDTO> findByCodigoCliente(long codigoCliente){
 
-        return null;
+    private PrestamoPost convertir(PrestamoPost prestamo) {
+        return new PrestamoPost(prestamo.clienteID(),prestamo.isbnLibros(),prestamo.fechaPrestamo(),prestamo.fechaDevolucion());
     }
 
     //TODO usar DTO y la exepción propia de préstamo
-    public Prestamo findById(long codigoPrestamo){
-        return prestamoRepo.findById(codigoPrestamo).orElseThrow(()-> new RuntimeException("No existe"));
+    public Prestamo findById( long clienteID) {
+        return prestamoRepo.findById(clienteID).orElseThrow(() -> new PrestamoNoEncontradoException("No existe"));
+    }
+    public List<Prestamo> findAll(){
+        return prestamoRepo.findAll();
     }
 
+    private Prestamo obtenerPrestamo(Long codigoPrestamo) {
+        return prestamoRepo.findById(codigoPrestamo).orElseThrow(() -> new PrestamoNoEncontradoException("El Prestamo no existe"));
+    }
+
+
+    public Prestamo update(PrestamoDTO prestamo){
+
+        Optional<Prestamo>  actualizar = prestamoRepo.findById(prestamo.clienteID());
+
+        if(!actualizar.isPresent() ) {
+            throw new PrestamoNoEncontradoException("El prestamo asociado al id" + prestamo.clienteID() + "no existe");
+        }
+
+        return prestamoRepo.save( convertir(prestamo));
+    }
+
+    private Prestamo convertir(PrestamoDTO prestamo){
+        List<Cliente> clientes = clienteRepo.findAllById();
+        Prestamo nuevo = Prestamo.builder()
+                .cliente(clientes)
+                .libros(prestamo.isbnLibros())
+                .fechaPrestamo(prestamo.fechaPrestamo())
+                .fechaDevolucion(prestamo.fechaDevolucion()).build();
+        return  nuevo;
+    }
 }

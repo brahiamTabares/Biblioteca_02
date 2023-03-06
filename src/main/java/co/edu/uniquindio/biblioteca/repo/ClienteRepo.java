@@ -11,5 +11,6 @@ import java.util.Optional;
 public interface ClienteRepo extends JpaRepository<Cliente, Long> {
 
     Optional<Cliente> findByEmail(String email);
+    Optional<Cliente> findById(long codigo);
 
 }
