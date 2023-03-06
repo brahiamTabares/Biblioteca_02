@@ -2,10 +2,7 @@ package co.edu.uniquindio.biblioteca.servicios;
 
 import co.edu.uniquindio.biblioteca.dto.AutorGet;
 import co.edu.uniquindio.biblioteca.dto.AutorPost;
-import co.edu.uniquindio.biblioteca.dto.ClienteGet;
-import co.edu.uniquindio.biblioteca.dto.ClientePost;
 import co.edu.uniquindio.biblioteca.entity.Autor;
-import co.edu.uniquindio.biblioteca.entity.Cliente;
 import co.edu.uniquindio.biblioteca.repo.AutorRepo;
 import co.edu.uniquindio.biblioteca.servicios.excepciones.AutorNoEncontradoException;
 import lombok.AllArgsConstructor;

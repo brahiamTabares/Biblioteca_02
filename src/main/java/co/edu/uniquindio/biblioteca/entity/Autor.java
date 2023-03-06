@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.io.Serializable;
@@ -18,5 +19,10 @@ public class Autor implements Serializable {
     private long id;
 
     private String nombre;
+    @Builder
+    public Autor(String nombre) {
+        this.nombre = nombre;
+    }
+
 
 }

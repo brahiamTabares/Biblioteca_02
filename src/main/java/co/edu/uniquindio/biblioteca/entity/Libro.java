@@ -23,7 +23,7 @@ public class Libro implements Serializable {
     private String nombre;
 
     @Column(nullable = false)
-    private Genero genero;
+    private String genero;
 
     @Column(nullable = false)
     private int unidades;
