@@ -1,10 +1,7 @@
 package co.edu.uniquindio.biblioteca.controller;
 
-import co.edu.uniquindio.biblioteca.dto.LibroDTO;
 import co.edu.uniquindio.biblioteca.dto.PrestamoDTO;
 import co.edu.uniquindio.biblioteca.dto.Respuesta;
-import co.edu.uniquindio.biblioteca.entity.Libro;
-import co.edu.uniquindio.biblioteca.entity.Prestamo;
 import co.edu.uniquindio.biblioteca.servicios.PrestamoServicio;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,18 +17,18 @@ public class PrestamoController {
     private final PrestamoServicio prestamoServicio;
 
     @PostMapping
-    public ResponseEntity<Respuesta<Prestamo>> save(@RequestBody PrestamoDTO prestamoDTO) {
+    public ResponseEntity<Respuesta<PrestamoDTO>> save(@RequestBody PrestamoDTO prestamoDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(new Respuesta<>("Prestamo creado correctamente", prestamoServicio.save(prestamoDTO)));
     }
 
     @GetMapping
-    public ResponseEntity<Respuesta<List<Prestamo>>> findAll() {
+    public ResponseEntity<Respuesta<List<PrestamoDTO>>> findAll() {
         return ResponseEntity.status(HttpStatus.OK).body( new Respuesta<>("", prestamoServicio.findAll()) );
     }
 
     @GetMapping("/{clienteID}")
-    public ResponseEntity<Respuesta<Prestamo>> findAll(@PathVariable long clienteID){
-        return ResponseEntity.status(HttpStatus.OK).body( new Respuesta<>("", prestamoServicio.findById(clienteID)) );
+    public ResponseEntity<Respuesta<List<PrestamoDTO>>> obtenerClientesPrestamo(@PathVariable Long clienteID,PrestamoDTO prestamoDTO) {
+        return ResponseEntity.status(HttpStatus.OK).body(new Respuesta<>("Prestamos encontrados", prestamoServicio.obtenerClientesPrestamo(clienteID,prestamoDTO)));
     }
 
     @DeleteMapping ("/{clienteID}")
@@ -42,9 +39,9 @@ public class PrestamoController {
         return  "se elimino";
     }
 
-    @PutMapping
-    public ResponseEntity<Respuesta<Prestamo>> Update(@RequestBody PrestamoDTO prestamoDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(new Respuesta<>("Prestamo actualizado correctamente", prestamoServicio.save(prestamoDTO)));
+    @PutMapping("/prestamoId}")
+    public ResponseEntity<Respuesta<PrestamoDTO>> update(@PathVariable long codigoPrestamo, @RequestBody PrestamoDTO  prestamoDTO) {
+        return ResponseEntity.status(HttpStatus.OK).body(new Respuesta<>("Prestamos actualizado exitosamente", prestamoServicio.update(codigoPrestamo, prestamoDTO)));
     }
 }
 
