@@ -2,10 +2,12 @@ package co.edu.uniquindio.biblioteca.servicios;
 
 import co.edu.uniquindio.biblioteca.dto.LibroDTO;
 import co.edu.uniquindio.biblioteca.entity.Autor;
+import co.edu.uniquindio.biblioteca.entity.Cliente;
 import co.edu.uniquindio.biblioteca.entity.Libro;
 import co.edu.uniquindio.biblioteca.repo.AutorRepo;
 import co.edu.uniquindio.biblioteca.repo.LibroRepo;
 import co.edu.uniquindio.biblioteca.servicios.excepciones.AutorNoEncontradoException;
+import co.edu.uniquindio.biblioteca.servicios.excepciones.ClienteNoEncontradoException;
 import co.edu.uniquindio.biblioteca.servicios.excepciones.LibroNoEncontradoException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -75,16 +77,16 @@ public class LibroServicio {
         libroRepo.findById(isbn).orElseThrow(() -> new LibroNoEncontradoException("El libro no existe"));
         libroRepo.deleteById(isbn);
     }
+    public Libro update(String isbn,LibroDTO libro){
+             obtenerLibro(isbn);
+             Libro nuevo = convertir(libro);
+             nuevo.setIsbn(isbn);
+             return libroRepo.save(nuevo);
 
-    public Libro update(LibroDTO libro){
-
-        Optional<Libro>  actualizar = libroRepo.findById(libro.isbn());
-
-        if(!actualizar.isPresent() ){
-            throw new RuntimeException("El libro con el isbn "+libro.isbn()+" no existe ");
-        }
-
-        return libroRepo.save( convertir(libro) );
     }
+    private Libro obtenerLibro(String isbn){
+        return libroRepo.findById(isbn).orElseThrow( () -> new LibroNoEncontradoException("El libro no existe") );
+    }
+
 
 }
