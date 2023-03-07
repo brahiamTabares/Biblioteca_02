@@ -1,5 +1,7 @@
 package co.edu.uniquindio.biblioteca.controller;
 
+import co.edu.uniquindio.biblioteca.dto.ClienteGet;
+import co.edu.uniquindio.biblioteca.dto.ClientePost;
 import co.edu.uniquindio.biblioteca.dto.LibroDTO;
 import co.edu.uniquindio.biblioteca.dto.Respuesta;
 import co.edu.uniquindio.biblioteca.entity.Libro;
@@ -46,9 +48,8 @@ public class LibroController {
 
         return  "se elimino";
     }
-    @PutMapping
-    public ResponseEntity<Respuesta<Libro>> Update(@RequestBody LibroDTO libroDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(new Respuesta<>("Libro actualizado correctamente", libroServicio.save(libroDTO)));
+    @PutMapping("/{isbnLibro}")
+    public ResponseEntity<Respuesta<Libro>> update(@PathVariable String isbnLibro, @RequestBody LibroDTO libro){
+        return ResponseEntity.status(HttpStatus.OK).body( new Respuesta<>("El Libro se modificó correctamente", libroServicio.update(isbnLibro,libro)) );
     }
-
 }
