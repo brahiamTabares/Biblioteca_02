@@ -4,11 +4,14 @@ import co.edu.uniquindio.biblioteca.dto.ClientePost;
 import co.edu.uniquindio.biblioteca.dto.LibroDTO;
 import co.edu.uniquindio.biblioteca.dto.PrestamoDTO;
 import co.edu.uniquindio.biblioteca.dto.PrestamoPost;
+import co.edu.uniquindio.biblioteca.entity.Autor;
 import co.edu.uniquindio.biblioteca.entity.Cliente;
 import co.edu.uniquindio.biblioteca.entity.Libro;
 import co.edu.uniquindio.biblioteca.entity.Prestamo;
 import co.edu.uniquindio.biblioteca.repo.ClienteRepo;
+import co.edu.uniquindio.biblioteca.repo.LibroRepo;
 import co.edu.uniquindio.biblioteca.repo.PrestamoRepo;
+import co.edu.uniquindio.biblioteca.servicios.excepciones.AutorNoEncontradoException;
 import co.edu.uniquindio.biblioteca.servicios.excepciones.ClienteNoEncontradoException;
 import co.edu.uniquindio.biblioteca.servicios.excepciones.LibroNoEncontradoException;
 import co.edu.uniquindio.biblioteca.servicios.excepciones.PrestamoNoEncontradoException;
@@ -26,6 +29,7 @@ public class PrestamoServicio {
 
     private final PrestamoRepo prestamoRepo;
     private final ClienteRepo clienteRepo;
+    private final LibroRepo libroRepo;
 
     public Prestamo save(PrestamoDTO prestamoDTO) {
 
@@ -90,13 +94,20 @@ public class PrestamoServicio {
         return prestamoRepo.save( convertir(prestamo));
     }
 
-    private Prestamo convertir(PrestamoDTO prestamo){
-        List<Cliente> clientes = clienteRepo.findAllById();
-        Prestamo nuevo = Prestamo.builder()
-                .cliente(clientes)
+    private Prestamo convertir(PrestamoDTO prestamo, long clienteID){
+        List<Libro> libros = libroRepo.findAllById(prestamo.isbnLibros());
+        List<Cliente> clientes = clienteRepo.findAllById(prestamo.clienteID());
+
+        if(libros.size()!=prestamo.isbnLibros().size()){
+
+            throw new LibroNoEncontradoException("El libro no existe");
+
+        }
+
+        return  Prestamo.builder()
+                .cliente(clientes.get())
                 .libros(prestamo.isbnLibros())
                 .fechaPrestamo(prestamo.fechaPrestamo())
                 .fechaDevolucion(prestamo.fechaDevolucion()).build();
-        return  nuevo;
     }
 }
