@@ -1,15 +1,14 @@
 package co.edu.uniquindio.biblioteca.servicios;
 
-import co.edu.uniquindio.biblioteca.dto.ClientePost;
-import co.edu.uniquindio.biblioteca.dto.LibroDTO;
-import co.edu.uniquindio.biblioteca.dto.PrestamoDTO;
-import co.edu.uniquindio.biblioteca.dto.PrestamoPost;
+import co.edu.uniquindio.biblioteca.dto.*;
 import co.edu.uniquindio.biblioteca.entity.Cliente;
 import co.edu.uniquindio.biblioteca.entity.Libro;
 import co.edu.uniquindio.biblioteca.entity.Prestamo;
 import co.edu.uniquindio.biblioteca.repo.ClienteRepo;
+import co.edu.uniquindio.biblioteca.repo.LibroRepo;
 import co.edu.uniquindio.biblioteca.repo.PrestamoRepo;
 import co.edu.uniquindio.biblioteca.servicios.excepciones.ClienteNoEncontradoException;
+import co.edu.uniquindio.biblioteca.servicios.excepciones.LibroNoEncontradoException;
 import co.edu.uniquindio.biblioteca.servicios.excepciones.PrestamoNoEncontradoException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,7 +16,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -26,75 +24,122 @@ public class PrestamoServicio {
     private final PrestamoRepo prestamoRepo;
     private final ClienteRepo clienteRepo;
 
-    public Prestamo save(PrestamoDTO prestamoDTO) {
+    private final LibroRepo libroRepo;
 
-        long codigoCliente = prestamoDTO.clienteID();
-        Optional<Cliente> consulta = clienteRepo.findById(codigoCliente);
 
-        if (consulta.isEmpty()) {
-            throw new ClienteNoEncontradoException("El cliente No Tiene prestamos existentes");
-        }
+
+    public PrestamoDTO save(PrestamoDTO prestamoDTO) {
+
+        long idCliente = prestamoDTO.clienteID();
+
+        Optional<Cliente> consulta = clienteRepo.findById(idCliente);
+
+           validarClienteExistente(prestamoDTO.clienteID());
 
         Prestamo prestamo = new Prestamo();
         prestamo.setCliente(consulta.get());
         prestamo.setFechaPrestamo(LocalDateTime.now());
-
+        prestamo.setEstaActivo(true);
         List<String> codigosLibros = prestamoDTO.isbnLibros();
         List<Libro> libros = new ArrayList<>();
+        for(String isbn:codigosLibros){
 
-        /*Optional<Libro> buscado libroRepo.findById(codigosLibros[0]);
+            Optional<Libro> libro=libroRepo.findById(isbn);
+            if(libro.isEmpty()){
+                throw new LibroNoEncontradoException("El libro no existe");
 
-        if(buscado.isEmpty()){
-            throw new LibroNoExiste("El libro no existe");
+            }
+            libros.add(libro.get());
         }
-
-        libros.add( buscado );*/
-
-        //TODO Completar la parte de los libros
         prestamo.setLibros(libros);
         prestamo.setFechaDevolucion(prestamoDTO.fechaDevolucion());
 
-        return prestamoRepo.save(prestamo);
+        return convertirDTO(prestamoRepo.save(prestamo));
     }
 
 
-    //TODO Completar
+    public PrestamoGet findById( long clienteID) {
+        boolean prestamoActivo= true;
 
-    private PrestamoPost convertir(PrestamoPost prestamo) {
-        return new PrestamoPost(prestamo.clienteID(),prestamo.isbnLibros(),prestamo.fechaPrestamo(),prestamo.fechaDevolucion());
+        return convertir(prestamoRepo.findByEstaActivo(clienteID,prestamoActivo).orElseThrow(() -> new PrestamoNoEncontradoException("No existe")));
+    }
+    public List<PrestamoDTO> findAll(){
+        boolean prestamosActivos= true;
+        return listarPrestamo(prestamoRepo.findByAllPrestamosActivos(prestamosActivos));
     }
 
-    //TODO usar DTO y la exepción propia de préstamo
-    public Prestamo findById( long clienteID) {
-        return prestamoRepo.findById(clienteID).orElseThrow(() -> new PrestamoNoEncontradoException("No existe"));
-    }
-    public List<Prestamo> findAll(){
-        return prestamoRepo.findAll();
-    }
+    public Long obtenerPrestamoLibroIsbn(String isbn){
 
-    private Prestamo obtenerPrestamo(Long codigoPrestamo) {
-        return prestamoRepo.findById(codigoPrestamo).orElseThrow(() -> new PrestamoNoEncontradoException("El Prestamo no existe"));
+        return prestamoRepo.obtenerPrestamoLibroIsbn(isbn);
     }
 
 
-    public Prestamo update(PrestamoDTO prestamo){
+    public void delete(long codigoPrestamo){
+        Prestamo prestamo = obtener(codigoPrestamo);
+        prestamoRepo.findById(codigoPrestamo).orElseThrow(() -> new PrestamoNoEncontradoException("No existe un prestamo registrado a este cliente"));
+        prestamo.setEstaActivo(false);
+    }
+ public List<PrestamoGet> obtenerPrestamoFecha(LocalDateTime date){
+        return modificarLista(prestamoRepo.busquedaPrestamoFecha(date));
+    }
+    public List<PrestamoGet> modificarLista(List<Prestamo> listaPrestamo) {
+        return listaPrestamo.stream().map(this::convertir).toList();
+    }
+    public PrestamoDTO update(long codigoPrestamo, PrestamoDTO prestamoDTO) {
+        validarPrestamoExistencia(codigoPrestamo);
+        Prestamo prestamo = validarPrestamo(prestamoDTO,codigoPrestamo);
+        return convertirDTO(prestamoRepo.save(prestamo));
+    }
+  // Metodo para convertir
 
-        Optional<Prestamo>  actualizar = prestamoRepo.findById(prestamo.clienteID());
+    public PrestamoGet convertir(Prestamo prestamo) {
+        return new PrestamoGet(prestamo.getCodigo(), prestamo.getCliente().getCodigo(), prestamo.getLibros().stream().map(Libro::getIsbn).toList(), prestamo.getFechaPrestamo(), prestamo.getFechaDevolucion());
+    }
+    public PrestamoDTO convertirDTO(Prestamo prestamo) {
+        List<String>  librosIsbn = new ArrayList<>();
 
-        if(!actualizar.isPresent() ) {
-            throw new PrestamoNoEncontradoException("El prestamo asociado al id" + prestamo.clienteID() + "no existe");
+        for (Libro libro : prestamo.getLibros()) {
+            librosIsbn.add(libro.getIsbn());
+        }
+        return new PrestamoDTO(prestamo.getCodigo(),librosIsbn,prestamo.getFechaDevolucion());
+    }
+   // Metodos para validar prestamo y cliente
+    public void validarPrestamoExistencia(Long codigo) {
+        prestamoRepo.findById(codigo).orElseThrow(() -> new co.edu.uniquindio.biblioteca.controller.excepciones.PrestamoNoEncontradoException("El Prestamo no existe."));
+    }
+
+    public  void  validarClienteExistente( long  idcliente ) {
+        Optional<Cliente> cliente = clienteRepo.findById(idcliente);
+
+        if ( cliente.isEmpty()) {
+            throw  new ClienteNoEncontradoException ("El cliente no existe" );
+        }
+    }
+    public Prestamo  validarPrestamo(PrestamoDTO prestamoDTO, long codigoPrestamo) {
+        List<Libro> libros = libroRepo.findAllById(prestamoDTO.isbnLibros());
+        Optional<Cliente> cliente = clienteRepo.findById(prestamoDTO.clienteID());
+
+        if (libros.size() != prestamoDTO.isbnLibros().size()) {
+            throw new LibroNoEncontradoException("Hay libros que no existen en la base de datos");
         }
 
-        return prestamoRepo.save( convertir(prestamo));
+        return Prestamo.builder().codigo(codigoPrestamo).cliente(cliente.get()).fechaPrestamo(LocalDateTime.now()).fechaDevolucion(prestamoDTO.fechaDevolucion()).libros(libros).build();
     }
 
-    private Prestamo convertir(PrestamoDTO prestamo){
-        List<Cliente> clientes = clienteRepo.findAllById();
-        Prestamo nuevo = Prestamo.builder()
-                .cliente(clientes)
-                .libros(prestamo.isbnLibros())
-                .fechaPrestamo(prestamo.fechaPrestamo())
-                .fechaDevolucion(prestamo.fechaDevolucion()).build();
-        return  nuevo;
+
+    public Prestamo obtener(Long codigoPrestamo) {
+        Prestamo encontrado = prestamoRepo.findById(codigoPrestamo).orElseThrow(() -> new PrestamoNoEncontradoException("El Prestamo no existe."));
+        return encontrado;
     }
+    public List<PrestamoDTO>obtenerClientesPrestamo(Long clienteId,PrestamoDTO prestamoDTO) {
+
+        clienteRepo.findById(clienteId);
+        List<Prestamo> prestamos = prestamoRepo.obtenerPrestamoCliente(clienteId);
+
+        return listarPrestamo(prestamos);
+    }
+    public List<PrestamoDTO> listarPrestamo(List<Prestamo> listaPrestamo) {
+        return listaPrestamo.stream().map(this::convertirDTO).toList();
+    }
+
 }

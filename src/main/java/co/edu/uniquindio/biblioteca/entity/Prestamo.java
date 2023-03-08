@@ -1,6 +1,7 @@
 package co.edu.uniquindio.biblioteca.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,6 +12,8 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @Data
+@Builder
+@AllArgsConstructor
 public class Prestamo implements Serializable {
 
     @Id
@@ -30,11 +33,7 @@ public class Prestamo implements Serializable {
     @ManyToMany
     private List<Libro> libros;
 
-    @Builder
-    public Prestamo(Cliente cliente, LocalDateTime fechaPrestamo, LocalDateTime fechaDevolucion, List<Libro> libros) {
-        this.cliente = cliente;
-        this.fechaPrestamo = fechaPrestamo;
-        this.fechaDevolucion = fechaDevolucion;
-        this.libros = libros;
-    }
+    @Column(nullable = false)
+    private boolean estaActivo;
+
 }
