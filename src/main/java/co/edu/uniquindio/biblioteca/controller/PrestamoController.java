@@ -25,6 +25,10 @@ public class PrestamoController {
     public ResponseEntity<Respuesta<List<PrestamoDTO>>> findAll() {
         return ResponseEntity.status(HttpStatus.OK).body( new Respuesta<>("", prestamoServicio.findAll()) );
     }
+    @GetMapping
+    public ResponseEntity<Respuesta<PrestamoDTO>> findById(@PathVariable long idCliente) {
+        return ResponseEntity.status(HttpStatus.OK).body( new Respuesta<>("", prestamoServicio.findById(idCliente)) );
+    }
 
     @GetMapping("/{clienteID}")
     public ResponseEntity<Respuesta<List<PrestamoDTO>>> obtenerClientesPrestamo(@PathVariable Long clienteID,PrestamoDTO prestamoDTO) {

@@ -20,14 +20,14 @@ public interface PrestamoRepo extends JpaRepository<Prestamo, Long> {
     List<Prestamo> findByAllPrestamosActivos(@Param("estaActivo") boolean estaActivo);
 
     @Query("SELECT p FROM Prestamo p WHERE DATE (p.fechaPrestamo) = DATE (:fechaPrestamo)")
-    List<Prestamo> findPrestamoFecha(@Param("fechaPrestamo") LocalDateTime fechaPrestamo);
+    List<Prestamo> busquedaPrestamoFecha(@Param("fechaPrestamo") LocalDateTime fechaPrestamo);
 
     @Query("SELECT p FROM Prestamo p WHERE DATE (p.fechaPrestamo) = DATE (:fechaDevolucion)")
-    List<Prestamo> findPrestamoFechaDevolucion(@Param("fechaDevolucion") LocalDateTime fechaDevolucion);
+    List<Prestamo> busquedaPrestamoFechaDevolucion(@Param("fechaDevolucion") LocalDateTime fechaDevolucion);
 
     @Query("SELECT COUNT(p) FROM Prestamo p JOIN p.libros l WHERE l.isbn = :isbn")
-    Long getPrestamoByLibro(@Param("isbn") String isbn);
+    Long obtenerPrestamoLibroIsbn(@Param("isbn") String isbn);
 
     @Query("SELECT p FROM Prestamo p WHERE p.cliente.codigo = :idCliente")
-    List<Prestamo> getPrestamoByCliente(@Param("idCliente") Long idCliente);
+    List<Prestamo> obtenerPrestamoCliente(@Param("idCliente") Long idCliente);
 }

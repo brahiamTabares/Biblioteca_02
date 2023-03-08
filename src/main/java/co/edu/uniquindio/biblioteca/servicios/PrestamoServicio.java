@@ -49,6 +49,7 @@ public class PrestamoServicio {
                 throw new LibroNoEncontradoException("El libro no existe");
 
             }
+            codigosLibros.add(isbn);
         }
         prestamo.setLibros(libros);
         prestamo.setFechaDevolucion(prestamoDTO.fechaDevolucion());
@@ -57,8 +58,9 @@ public class PrestamoServicio {
     }
 
 
-    public Prestamo findById( long clienteID) {
-        return prestamoRepo.findById(clienteID).orElseThrow(() -> new PrestamoNoEncontradoException("No existe"));
+    public PrestamoDTO findById( long clienteID) {
+
+        return convertirDTO(prestamoRepo.findById(clienteID).orElseThrow(() -> new PrestamoNoEncontradoException("No existe")));
     }
     public List<PrestamoDTO> findAll(){
         boolean prestamosActivos= true;
@@ -68,11 +70,15 @@ public class PrestamoServicio {
 
     public void delete(long codigoPrestamo){
         Prestamo prestamo = obtener(codigoPrestamo);
-        prestamo.setEstaActivo(false);
         prestamoRepo.findById(codigoPrestamo).orElseThrow(() -> new PrestamoNoEncontradoException("No existe un prestamo registrado a este cliente"));
-        prestamoRepo.deleteById(codigoPrestamo);
+        prestamo.setEstaActivo(false);
     }
-
+ public List<PrestamoGet> obtenerPrestamoFecha(LocalDateTime date){
+        return modificarLista(prestamoRepo.busquedaPrestamoFecha(date));
+    }
+    public List<PrestamoGet> modificarLista(List<Prestamo> listaPrestamo) {
+        return listaPrestamo.stream().map(this::convertir).toList();
+    }
     public PrestamoDTO update(long codigoPrestamo, PrestamoDTO prestamoDTO) {
         validarPrestamoExistencia(codigoPrestamo);
         Prestamo prestamo = validarPrestamo(prestamoDTO,codigoPrestamo);
@@ -124,7 +130,7 @@ public class PrestamoServicio {
         long idCliente = prestamoDTO.clienteID();
 
         Optional<Cliente> consulta = clienteRepo.findById(idCliente);
-        List<Prestamo> prestamos = prestamoRepo.getPrestamoByCliente(idCliente);
+        List<Prestamo> prestamos = prestamoRepo.obtenerPrestamoCliente(idCliente);
 
         return listarPrestamo(prestamos);
     }
