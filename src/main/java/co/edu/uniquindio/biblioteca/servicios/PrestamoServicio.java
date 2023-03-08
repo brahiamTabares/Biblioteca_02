@@ -133,10 +133,8 @@ public class PrestamoServicio {
     }
     public List<PrestamoDTO>obtenerClientesPrestamo(Long clienteId,PrestamoDTO prestamoDTO) {
 
-        long idCliente = prestamoDTO.clienteID();
-
-        Optional<Cliente> consulta = clienteRepo.findById(idCliente);
-        List<Prestamo> prestamos = prestamoRepo.obtenerPrestamoCliente(idCliente);
+        clienteRepo.findById(clienteId);
+        List<Prestamo> prestamos = prestamoRepo.obtenerPrestamoCliente(clienteId);
 
         return listarPrestamo(prestamos);
     }

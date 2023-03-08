@@ -5,10 +5,12 @@ import co.edu.uniquindio.biblioteca.dto.PrestamoGet;
 import co.edu.uniquindio.biblioteca.dto.Respuesta;
 import co.edu.uniquindio.biblioteca.servicios.PrestamoServicio;
 import lombok.AllArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -48,6 +50,10 @@ public class PrestamoController {
     @PutMapping("/{prestamoId}")
     public ResponseEntity<Respuesta<PrestamoDTO>> update(@PathVariable long codigoPrestamo, @RequestBody PrestamoDTO  prestamoDTO) {
         return ResponseEntity.status(HttpStatus.OK).body(new Respuesta<>("Prestamos actualizado exitosamente", prestamoServicio.update(codigoPrestamo, prestamoDTO)));
+    }
+    @GetMapping("/ obtenerPrestamoFecha/{date}")
+    public ResponseEntity<Respuesta<List<PrestamoGet>>>  obtenerPrestamoFecha(@PathVariable("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime date) {
+        return ResponseEntity.status(HttpStatus.OK).body(new Respuesta<>("Prestamos encontrados", prestamoServicio.obtenerPrestamoFecha(date)));
     }
 }
 
