@@ -58,13 +58,19 @@ public class PrestamoServicio {
     }
 
 
-    public PrestamoDTO findById( long clienteID) {
+    public PrestamoGet findById( long clienteID) {
+        boolean prestamoActivo= true;
 
-        return convertirDTO(prestamoRepo.findById(clienteID).orElseThrow(() -> new PrestamoNoEncontradoException("No existe")));
+        return convertir(prestamoRepo.findByEstaActivo(clienteID,prestamoActivo).orElseThrow(() -> new PrestamoNoEncontradoException("No existe")));
     }
     public List<PrestamoDTO> findAll(){
         boolean prestamosActivos= true;
         return listarPrestamo(prestamoRepo.findByAllPrestamosActivos(prestamosActivos));
+    }
+
+    public Long obtenerPrestamoLibroIsbn(String isbn){
+
+        return prestamoRepo.obtenerPrestamoLibroIsbn(isbn);
     }
 
 

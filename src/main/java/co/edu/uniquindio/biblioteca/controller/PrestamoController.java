@@ -1,6 +1,7 @@
 package co.edu.uniquindio.biblioteca.controller;
 
 import co.edu.uniquindio.biblioteca.dto.PrestamoDTO;
+import co.edu.uniquindio.biblioteca.dto.PrestamoGet;
 import co.edu.uniquindio.biblioteca.dto.Respuesta;
 import co.edu.uniquindio.biblioteca.servicios.PrestamoServicio;
 import lombok.AllArgsConstructor;
@@ -25,8 +26,8 @@ public class PrestamoController {
     public ResponseEntity<Respuesta<List<PrestamoDTO>>> findAll() {
         return ResponseEntity.status(HttpStatus.OK).body( new Respuesta<>("", prestamoServicio.findAll()) );
     }
-    @GetMapping
-    public ResponseEntity<Respuesta<PrestamoDTO>> findById(@PathVariable long idCliente) {
+    @GetMapping("/cliente/{idCliente}")
+    public ResponseEntity<Respuesta<PrestamoGet>> findById(@PathVariable long idCliente) {
         return ResponseEntity.status(HttpStatus.OK).body( new Respuesta<>("", prestamoServicio.findById(idCliente)) );
     }
 
@@ -35,15 +36,16 @@ public class PrestamoController {
         return ResponseEntity.status(HttpStatus.OK).body(new Respuesta<>("Prestamos encontrados", prestamoServicio.obtenerClientesPrestamo(clienteID,prestamoDTO)));
     }
 
-    @DeleteMapping ("/{clienteID}")
-    public String delete(@PathVariable long clienteID){
-
-       prestamoServicio.delete(clienteID);
-
-        return  "se elimino";
+    @GetMapping("/ObtenerPrestamoLibroIsbn/{isbn}")
+    public ResponseEntity<Respuesta<Long>> obtenerPrestamoLibroIsbn(@PathVariable String isbn) {
+        return ResponseEntity.status(HttpStatus.OK).body(new Respuesta<>("Prestamos encontrados", prestamoServicio.obtenerPrestamoLibroIsbn(isbn)));
     }
-
-    @PutMapping("/prestamoId}")
+    @DeleteMapping ("/{codigoPrestamo}")
+    public ResponseEntity<Respuesta<String>> delete(@PathVariable Long codigoPrestamo) {
+        prestamoServicio.delete(codigoPrestamo);
+        return ResponseEntity.status(HttpStatus.OK).body(new Respuesta<>("Prestamos eliminado exitosamente"));
+    }
+    @PutMapping("/{prestamoId}")
     public ResponseEntity<Respuesta<PrestamoDTO>> update(@PathVariable long codigoPrestamo, @RequestBody PrestamoDTO  prestamoDTO) {
         return ResponseEntity.status(HttpStatus.OK).body(new Respuesta<>("Prestamos actualizado exitosamente", prestamoServicio.update(codigoPrestamo, prestamoDTO)));
     }
