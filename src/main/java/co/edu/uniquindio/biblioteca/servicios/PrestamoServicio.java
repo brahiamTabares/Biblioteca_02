@@ -49,7 +49,7 @@ public class PrestamoServicio {
                 throw new LibroNoEncontradoException("El libro no existe");
 
             }
-            codigosLibros.add(isbn);
+            libros.add(libro.get());
         }
         prestamo.setLibros(libros);
         prestamo.setFechaDevolucion(prestamoDTO.fechaDevolucion());
