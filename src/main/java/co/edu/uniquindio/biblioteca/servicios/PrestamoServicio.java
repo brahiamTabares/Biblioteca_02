@@ -12,6 +12,8 @@ import co.edu.uniquindio.biblioteca.servicios.excepciones.LibroNoEncontradoExcep
 import co.edu.uniquindio.biblioteca.servicios.excepciones.PrestamoNoEncontradoException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,9 +81,12 @@ public class PrestamoServicio {
         prestamoRepo.findById(codigoPrestamo).orElseThrow(() -> new PrestamoNoEncontradoException("No existe un prestamo registrado a este cliente"));
         prestamo.setEstaActivo(false);
     }
- public List<PrestamoGet> obtenerPrestamoFecha(LocalDateTime date){
-        return modificarLista(prestamoRepo.busquedaPrestamoFecha(date));
+ public List<PrestamoGet> obtenerPrestamoFecha(LocalDate date){
+     LocalDateTime reformattedDate = date.atStartOfDay();
+        return modificarLista(prestamoRepo.busquedaPrestamoFecha(reformattedDate));
     }
+
+
     public List<PrestamoGet> modificarLista(List<Prestamo> listaPrestamo) {
         return listaPrestamo.stream().map(this::convertir).toList();
     }
